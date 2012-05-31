@@ -7,6 +7,13 @@
 	<strong>Changelog :</strong>
 	<ul>
 		<li>
+			<strong>Revision 2.5</strong><br />
+			Contributed by MacEarl
+			<ol>
+				<li>Added a Feature to download a specified Range of Wallpaper</li>
+			</ol>
+		</li>
+		<li>
 			<strong>Revision 2.4</strong><br />
 			Contributed by MacEarl and HansTester
 			<ol>
