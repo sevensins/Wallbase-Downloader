@@ -5,6 +5,11 @@
 # and at present is actively maintained by MacEarl
 #
 #
+# Revision 2.5
+# Contributed by MacEarl
+# 1. Added a Feature to download a specified Range of Wallpaper
+#
+#
 # Revision 2.4
 # Contributed by MacEarl and HansTester
 # 1. Fixed Login Feature (NSFW working again) (Thanks to HansTester)
@@ -244,7 +249,22 @@
 #  Then the path the folder are being downloaded to looks like this:
 #  ./wallpapers/100/2/
 #
-
+################################
+### Section 16 :: WP Range   ###
+################################
+#
+# This Option will download a specified Range of Wallpapers
+# 
+# Set WP_RANGE_STOP to a value greater 0 to set it active
+#
+# For example:
+#  WP_RANGE_START=10000
+#  WP_RANGE_STOP=10200
+#
+#  This Setting will download all Wallpapers from
+#  10.000 to 10.200
+#  
+#
 
 ##################################
 ###    Needed for NSFW/New     ###
@@ -295,6 +315,9 @@ QUERY="$1"
 COLLECTION=-1
 # See Section 15
 CATEGORIZE=0
+# See Section 16
+WP_RANGE_START=0
+WP_RANGE_STOP=0
 
 #################################
 ### End Configuration Options ###
@@ -336,7 +359,7 @@ function login {
     echo "usrname=$USER&pass=$PASS&nopass_email=Type+in+your+e-mail+and+press+enter&nopass=0&1=1" > login
     wget --keep-session-cookies --save-cookies=cookies.txt --referer=http://wallbase.cc/start/ --post-file=login http://wallbase.cc/user/login
     wget --keep-session-cookies --load-cookies=cookies.txt --save-cookies=cookies.txt --referer=wallbase.cc http://wallbase.cc/user/adult_confirm/1
-	rm index.html
+	rm home
 } # /login
 
 # 
@@ -352,6 +375,7 @@ function getPage {
 		read
 		exit
 	fi
+
 	# parameters ok --> get page
 	wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc http://wallbase.cc/$1
 } # /getPage
@@ -370,7 +394,8 @@ function downloadWallpapers {
 		read
 		exit
 	fi
-	
+
+	# parameters ok --> get page
 	pagename=$1
 	URLSFORIMAGES="$(cat $pagename | grep -o "http:.*" | cut -d " " -f 1 | grep wallpaper)"
 	for imgURL in $URLSFORIMAGES
@@ -396,7 +421,25 @@ if [ $CATEGORY == 001 ] || [ $CATEGORY == 011 ] || [ $CATEGORY == 111 ] || [ $TY
    login $USER $PASS
 fi
 
-if [ $TYPE == 1 ] ; then
+if [ $WP_RANGE_STOP -gt 0 ]; then
+	#WP RANGE
+	for (( count= "$WP_RANGE_START"; count< "$WP_RANGE_STOP"+1; count=count+1 ));
+	do
+		if cat downloaded.txt | grep "$count" >/dev/null
+			then
+				echo "File already downloaded!"
+			else
+				echo $count >> downloaded.txt
+				wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc http://wallbase.cc/wallpaper/$count
+				cat $count | egrep -o "http:.*(gif|png|jpg)" | egrep "wallbase2|imageshack.us|ovh.net" | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
+				rm $count
+				if [ -f home ]; then
+				rm home
+				fi
+		fi
+		done
+
+elif [ $TYPE == 1 ] ; then
     # RANDOM
     for (( count= 0; count< "$MAX_RANGE"; count=count+"$THPP" )); 
     do
