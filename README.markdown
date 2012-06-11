@@ -7,6 +7,13 @@
 	<strong>Changelog :</strong>
 	<ul>
 		<li>
+			<strong>Revision 2.5.1</strong><br />
+			Contributed by MacEarl
+			<ol>
+				<li>Added some Explanation in Section 6 to clarify the combination of the THPP and Max_Range Variables</li>
+			</ol>
+		</li>
+		<li>
 			<strong>Revision 2.5</strong><br />
 			Contributed by MacEarl
 			<ol>

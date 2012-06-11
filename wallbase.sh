@@ -5,9 +5,14 @@
 # and at present is actively maintained by MacEarl
 #
 #
+# Revision 2.5.1
+# Contributed by MacEarl
+# 1. Added some Explanation in Section 6 to clarify the combination of the THPP and Max_Range Variables
+#
+#
 # Revision 2.5
 # Contributed by MacEarl
-# 1. Added a Feature to download a specified Range of Wallpaper
+# 1. Added Function to download a specified Range of Wallpaper
 #
 #
 # Revision 2.4
@@ -137,6 +142,10 @@
 #
 # Thumbnails per page.
 #  Accepted values are 20, 32, 40, 60
+#
+# For Max_Range multiples of the chosen THPP variable are recommended.
+#
+# For example if your THPP variable is 20 you should use 20, 40, 60, ... and so on for Max_Range
 #
 ################################
 ###  Section 7 :: Location   ###
@@ -285,7 +294,7 @@ PASS="yourpassword"
 ###   Configuration Options   ###
 #################################
  
-# Define the maximum number of wallpapers that you would like to download MAX_RANGE=26460
+# For accepted values see Section 6
 MAX_RANGE=240
 # For accepted values of resolution see Section 1
 RESOLUTION=0
