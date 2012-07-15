@@ -5,6 +5,11 @@
 # and at present is actively maintained by MacEarl
 #
 #
+# Revision 2.6
+# Contributed by MacEarl
+# 1. Added Function do download Related Wallpapers
+#
+#
 # Revision 2.5.1
 # Contributed by MacEarl
 # 1. Added some Explanation in Section 6 to clarify the combination of the THPP and Max_Range Variables
@@ -273,6 +278,15 @@
 #  This Setting will download all Wallpapers from
 #  10.000 to 10.200
 #  
+################################
+### Section 17 :: Related    ###
+################################
+#
+# This Option will also Download all Related Wallpapers
+# 
+# Related = 0 --> Deactivated
+# Related = 1 --> Activated
+#
 #
 
 ##################################
@@ -281,9 +295,9 @@
  
 # See Section 13
 # Enter your Username
-USER="yourusername"
+USER=""
 # Enter your password
-PASS="yourpassword"
+PASS=""
  
 #################################
 ###  End needed for NSFW/New  ###
@@ -327,6 +341,8 @@ CATEGORIZE=0
 # See Section 16
 WP_RANGE_START=0
 WP_RANGE_STOP=0
+# See Section 17
+Related=0
 
 #################################
 ### End Configuration Options ###
@@ -418,7 +434,28 @@ function downloadWallpapers {
 				echo $number >> downloaded.txt
 				wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc $img
 				cat $number | egrep -o "http:.*(gif|png|jpg)" | egrep "wallbase2|imageshack.us|ovh.net" | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
-				rm $number
+				if [ $Related == 1 ]
+					then
+						wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc -O related.html http://wallbase.cc/related/$number
+						URLSFORIMAGES_related="$(cat related.html | grep -o "http:.*" | cut -d " " -f 1 | grep wallpaper)"
+						rm $number
+						for imgURL in $URLSFORIMAGES_related
+							do
+							img="$(echo $imgURL | sed 's/.\{1\}$//')"
+							number="$(echo $img | sed  's .\{29\}  ')"
+							if cat downloaded.txt | grep "$number" >/dev/null
+								then
+									echo "File already downloaded!"
+								else
+									echo $number >> downloaded.txt
+									wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc $img
+									cat $number | egrep -o "http:.*(gif|png|jpg)" | egrep "wallbase2|imageshack.us|ovh.net" | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
+									rm $number
+							fi
+							done
+					else
+						rm $number
+				fi	
 		fi
 		done
         rm $pagename

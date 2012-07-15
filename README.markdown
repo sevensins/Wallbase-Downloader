@@ -7,6 +7,13 @@
 	<strong>Changelog :</strong>
 	<ul>
 		<li>
+			<strong>Revision 2.6</strong><br />
+			Contributed by MacEarl
+			<ol>
+				<li>Added Function do download Related Wallpapers</li>
+			</ol>
+		</li>
+		<li>
 			<strong>Revision 2.5.1</strong><br />
 			Contributed by MacEarl
 			<ol>
