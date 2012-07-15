@@ -7,7 +7,7 @@
 #
 # Revision 2.6
 # Contributed by MacEarl
-# 1. Added Function do download Related Wallpapers
+# 1. Added Function to download Related Wallpapers
 #
 #
 # Revision 2.5.1

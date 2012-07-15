@@ -10,7 +10,7 @@
 			<strong>Revision 2.6</strong><br />
 			Contributed by MacEarl
 			<ol>
-				<li>Added Function do download Related Wallpapers</li>
+				<li>Added Function to download Related Wallpapers</li>
 			</ol>
 		</li>
 		<li>
