@@ -5,6 +5,12 @@
 # and at present is actively maintained by MacEarl
 #
 #
+# Revision 2.6.1
+# Contributed by MacEarl
+# 1. Fixed Download Function (They added base64 encrypted urls)
+#	 The Script now uses "base64" to decode those urls
+#	 so make sure you got that installed ;)
+#
 # Revision 2.6
 # Contributed by MacEarl
 # 1. Added Function to download Related Wallpapers
@@ -433,7 +439,7 @@ function downloadWallpapers {
 			else
 				echo $number >> downloaded.txt
 				wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc $img
-				cat $number | egrep -o "http:.*(gif|png|jpg)" | egrep "wallbase2|imageshack.us|ovh.net" | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
+				cat $number | grep -o "'+B.*+" | sed 's/.\{3\}$//' | sed 's .\{5\}  ' | base64 -d | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
 				if [ $Related == 1 ]
 					then
 						wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc -O related.html http://wallbase.cc/related/$number
