@@ -7,6 +7,14 @@
 	<strong>Changelog :</strong>
 	<ul>
 		<li>
+			<strong>Revision 2.6.1</strong><br />
+			Contributed by MacEarl
+			<ol>
+				<li>Fixed Download Function (They added base64 encrypted urls).<br />
+				The Script now uses "base64" to decode those urls so make sure you got that installed ;)</li>
+			</ol>
+		</li>
+		<li>
 			<strong>Revision 2.6</strong><br />
 			Contributed by MacEarl
 			<ol>
