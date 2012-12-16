@@ -5,11 +5,18 @@
 # and at present is actively maintained by MacEarl
 #
 #
+# Revision 2.6.2
+# Contributed by MacEarl
+# 1. Fixed Download related Wallpapers Fuction (just forgot to add the base64 stuff last time)
+# 2. It is now possible to download a Range of Wallpapers with all related Wallpapers
+# 
+#
 # Revision 2.6.1
 # Contributed by MacEarl
 # 1. Fixed Download Function (They added base64 encrypted urls)
 #	 The Script now uses "base64" to decode those urls
 #	 so make sure you got that installed ;)
+#
 #
 # Revision 2.6
 # Contributed by MacEarl
@@ -390,7 +397,6 @@ function login {
     echo "usrname=$USER&pass=$PASS&nopass_email=Type+in+your+e-mail+and+press+enter&nopass=0&1=1" > login
     wget --keep-session-cookies --save-cookies=cookies.txt --referer=http://wallbase.cc/start/ --post-file=login http://wallbase.cc/user/login
     wget --keep-session-cookies --load-cookies=cookies.txt --save-cookies=cookies.txt --referer=wallbase.cc http://wallbase.cc/user/adult_confirm/1
-	rm home
 } # /login
 
 # 
@@ -455,7 +461,7 @@ function downloadWallpapers {
 								else
 									echo $number >> downloaded.txt
 									wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc $img
-									cat $number | egrep -o "http:.*(gif|png|jpg)" | egrep "wallbase2|imageshack.us|ovh.net" | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
+									cat $number | grep -o "'+B.*+" | sed 's/.\{3\}$//' | sed 's .\{5\}  ' | base64 -d | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
 									rm $number
 							fi
 							done
@@ -478,16 +484,35 @@ if [ $WP_RANGE_STOP -gt 0 ]; then
 	for (( count= "$WP_RANGE_START"; count< "$WP_RANGE_STOP"+1; count=count+1 ));
 	do
 		if cat downloaded.txt | grep "$count" >/dev/null
-			then
-				echo "File already downloaded!"
-			else
+		 	then
+		 		echo "File already downloaded!"
+		 	else
 				echo $count >> downloaded.txt
-				wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc http://wallbase.cc/wallpaper/$count
-				cat $count | egrep -o "http:.*(gif|png|jpg)" | egrep "wallbase2|imageshack.us|ovh.net" | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
-				rm $count
-				if [ -f home ]; then
-				rm home
-				fi
+		 		wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc http://wallbase.cc/wallpaper/$count
+		 		cat $count | grep -o "'+B.*+" | sed 's/.\{3\}$//' | sed 's .\{5\}  ' | base64 -d | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
+				if [ $Related == 1 ]
+					then
+						wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc -O related.html http://wallbase.cc/related/$count
+						URLSFORIMAGES_related="$(cat related.html | grep -o "http:.*" | cut -d " " -f 1 | grep wallpaper)"
+						rm $count
+						for imgURL in $URLSFORIMAGES_related
+							do
+							img="$(echo $imgURL | sed 's/.\{1\}$//')"
+							number="$(echo $img | sed  's .\{29\}  ')"
+							if cat downloaded.txt | grep "$number" >/dev/null
+								then
+									echo "File already downloaded!"
+								else
+									echo $number >> downloaded.txt
+									wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc $img
+									cat $number | grep -o "'+B.*+" | sed 's/.\{3\}$//' | sed 's .\{5\}  ' | base64 -d | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
+									rm $number
+							fi
+							done
+						rm related.html
+					else
+					rm $count
+				fi	
 		fi
 		done
 
@@ -563,4 +588,4 @@ else
 	echo error in TYPE please check Variable
 fi
  
-rm "1" "cookies.txt" "login"
+rm "1" "cookies.txt" "login" "login.1"

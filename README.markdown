@@ -7,6 +7,14 @@
 	<strong>Changelog :</strong>
 	<ul>
 		<li>
+			<strong>Revision 2.6.2</strong><br />
+			Contributed by MacEarl
+			<ol>
+				<li>Fixed Download related Wallpapers Fuction (just forgot to add the base64 stuff last time)</li>
+				<li>It is now possible to download a Range of Wallpapers with all related Wallpapers</li>
+			</ol>
+		</li>
+		<li>
 			<strong>Revision 2.6.1</strong><br />
 			Contributed by MacEarl
 			<ol>
