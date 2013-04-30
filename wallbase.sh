@@ -5,7 +5,8 @@
 # and at present is actively maintained by MacEarl
 #
 #
-# This Script is written for GNU Linux, it should work under Mac OS but you need to change all instances of "base64 -d" to "base64 -D"
+# This Script is written for GNU Linux, it should work under Mac OS but you need to change 
+# all instances of "base64 -d" to "base64 -D"
 #
 #
 # Revision 2.6.2
