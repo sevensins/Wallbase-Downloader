@@ -4,6 +4,9 @@
 	So if you are in a hurry just use the wallbase script to leech the wallpapers of the site and then sort them at your leisure.<br />
 </p>
 <p>
+	<h3>This Script is written for GNU Linux, it should work under Mac OS but you need to change all instances of "base64 -d" to "base64 -D"</h3> <br />
+</p>
+<p>
 	<strong>Changelog :</strong>
 	<ul>
 		<li>
