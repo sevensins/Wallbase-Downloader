@@ -5,6 +5,9 @@
 # and at present is actively maintained by MacEarl
 #
 #
+# This Script is written for GNU Linux, it should work under Mac OS but you need to change all instances of "base64 -d" to "base64 -D"
+#
+#
 # Revision 2.6.2
 # Contributed by MacEarl
 # 1. Fixed Download related Wallpapers Fuction (just forgot to add the base64 stuff last time)
