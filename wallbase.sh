@@ -5,8 +5,16 @@
 # and at present is actively maintained by MacEarl
 #
 #
-# This Script is written for GNU Linux, it should work under Mac OS but you need to change 
-# all instances of "base64 -d" to "base64 -D"
+# This Script is written for GNU Linux, it should work under Mac OS
+#
+#
+# Revision 2.7
+# Contributed by MacEarl
+# 1. Fixed most issues (wallbase v4 update)
+#    No need for Base64 anymore
+# 2. Login Feature does not work, that means no nsfw wallpapers, Favourites or Uploads from a User 
+#    (Collections with some nsfw Images will be downloaded without the nsfw images)
+# 3. Download related Wallpapers Function does not work (it seems the related Wallpaper function was removed, if you find it please let me know)
 #
 #
 # Revision 2.6.2
@@ -130,7 +138,7 @@
 #   0.99 => Portrait
 #
 ################################
-###  Section 3 :: Category   ###
+###  Section 3 :: PURITY     ###
 ################################
 #
 # Category : SFW, Sketchy, NSFW
@@ -173,14 +181,15 @@
 ###  Section 7 :: Location   ###
 ################################
 #
-# The download location Foldername of desired Location e.g. "Wallpapers"
+# The download location 
+# Foldername of desired Location e.g. "~/Wallpapers"
 #
 ################################
 ###   Section 8 :: Best of   ###
 ################################
 #
 # Best of:
-#  All time = 0
+#  All time = 1
 #  3Months  = 3m
 #  2Months  = 2m
 #  1Month   = 1m
@@ -225,8 +234,10 @@
 # Define your Search Query like this:
 #  ./wallbase.sh Mario
 #  For longer Search Queries you need to set QUERY manually
-#  For Example set QUERY="Link OR Zelda OR Legend of Zelda OR OoT"
-#  Accepted Operators are "AND" and "OR"
+#  For Example set QUERY="Link | Zelda | Legend of Zelda | OoT"
+#  or QUERY="=(Mario Luigi)"
+#
+#  Accepted Operators are "=( ...)" for AND and "|" for OR
 #
 ################################
 ###   Section 13 :: Login    ###
@@ -234,9 +245,9 @@
 #
 # Due to changes in the wallbase.cc "Policy"
 #  you now need to login to see NSFW Content
-#  or newest Wallpapers
+#
 #  It is also needed if you want to download "your own Favorites" (Duh!)
-#  or user collections
+#  or uploads from a user
 #  
 #  Please provide your Username and Password below
 #  to download NSFW content
@@ -245,36 +256,36 @@
 ### Section 14 :: Collection ###
 ################################
 #
-# This Option is used for downloading your Favorites (You need an account for the same)
+# This Option is used for downloading your Favorites
 # and to download Collections created by other users or
 # all Wallpapers uploaded from a Specific User
 #
-# Set the value to "-1" to download your Favorites in your "Home" Collection.
+# Set the value to "0" to download your Favorites in your "Home" Collection.
 # 
 # To download User Collections or different Favorite Collections open the desired
 # Collection in your Browser and copy the following part
-#  1. For your Favorites: http://wallbase.cc/user/favorites/"#number_of_the_collection"
-#  2. For user created collections: http://wallbase.cc/user/collection/"#number_of_the_collection"
+#  1. For your Favorites: http://wallbase.cc/favorites/"#number_of_the_collection"
+#  2. For user created collections: http://wallbase.cc/collection/"#number_of_the_collection"
 # You only need the number which is shown at the end of the URL
 #
 # To download Wallpapers uploaded by a specific user open the profile
 # in your Browser and copy the following part
-# http://wallbase.cc/user/profile/"#UserID"/uploads
-# You only need the number between profile and uploads
+# http://wallbase.cc/user/"#UserID"/uploads
+# You only need the number between user and uploads
 #
 ################################
 ### Section 15 :: Categorize ###
 ################################
 #
 # This Option will help you keep your downloaded wallpapers ordered
-# It will create subfolders for the TOPIC and CATEGORY
+# It will create subfolders for the TOPIC and PURITY
 # so you wont have to spend much time looking for a special wallpaper
 #
 # Set this option to a value greater 0 to set it active
 #
 # For example:
 #  TOPIC="2"
-#  CATEGORY="100"
+#  PURITY="100"
 #  LOCATION="./wallpapers"
 #
 #  Then the path the folder are being downloaded to looks like this:
@@ -294,7 +305,9 @@
 #
 #  This Setting will download all Wallpapers from
 #  10.000 to 10.200
-#  
+# 
+
+# NOT WORKING! 
 ################################
 ### Section 17 :: Related    ###
 ################################
@@ -331,8 +344,8 @@ MAX_RANGE=240
 RESOLUTION=0
 # For accepted values of aspect ratio see Section 2
 ASPECTRATIO=0
-# For accepted values of category see Section 3
-CATEGORY=100
+# For accepted values of PURITY see Section 3
+PURITY=110
 # For accepted values of topic see Section 4
 TOPIC=123
 # For accepted values for SIZE see Section 5
@@ -342,7 +355,7 @@ THPP=60
 # For download location see Section 7
 LOCATION=/location/to_your/wallpapers_folder
 # Best of : see Section 8
-TIME=0
+TIME=1
 # For Types see Section 9
 TYPE=1
 # For order Options see Section 10
@@ -352,24 +365,26 @@ ORDER_TYPE=desc
 # See Section 12
 QUERY="$1"
 # See Section 14
-COLLECTION=-1
+COLLECTION=0
 # See Section 15
 CATEGORIZE=0
 # See Section 16
 WP_RANGE_START=0
 WP_RANGE_STOP=0
-# See Section 17
-Related=0
+
+# not working
+# # See Section 17
+# Related=0
 
 #################################
 ### End Configuration Options ###
 #################################
  
 # if wished categorize the downloads
-# by their CATEGORY(nsfw,sfw,sketchy) 
+# by their PURITY(nsfw,sfw,sketchy) 
 # and TOPIC (manga, hd, general)
 if [ $CATEGORIZE -gt 0 ]; then
-	LOCATION="$LOCATION/$CATEGORY/$TOPIC"
+	LOCATION="$LOCATION/$PURITY/$TOPIC"
 fi
 
 if [ ! -d $LOCATION ]; then
@@ -386,21 +401,31 @@ cd $LOCATION
 # arg2: password
 #
 function login {
-	# checking parameters -> if not ok print error and exit script
-	if [ $# -lt 2 ] || [ $1 == '' ] || [ $2 == '' ]; then
-        echo "Please check the needed Options for NSFW/New Content (username and password)"
-        echo ""
-        echo "For further Information see Section 13"
-        echo ""
-        echo "Press any key to exit"
-        read
-        exit
-    fi
+	echo "The login Feature does not work at the moment,"
+	echo ""
+	echo "please change your configuration to ignore nsfw images, your favourites or uploads from user x"
+	echo ""
+	echo "Press any key to exit"
+	read
+	exit
+
+	# # checking parameters -> if not ok print error and exit script
+	# if [ $# -lt 2 ] || [ $1 == '' ] || [ $2 == '' ]; then
+ #        echo "Please check the needed Options for NSFW/New Content (username and password)"
+ #        echo ""
+ #        echo "For further Information see Section 13"
+ #        echo ""
+ #        echo "Press any key to exit"
+ #        read
+ #        exit
+    # fi
     
-    # everythings ok --> login
-    echo "usrname=$USER&pass=$PASS&nopass_email=Type+in+your+e-mail+and+press+enter&nopass=0&1=1" > login
-    wget --keep-session-cookies --save-cookies=cookies.txt --referer=http://wallbase.cc/start/ --post-file=login http://wallbase.cc/user/login
-    wget --keep-session-cookies --load-cookies=cookies.txt --save-cookies=cookies.txt --referer=wallbase.cc http://wallbase.cc/user/adult_confirm/1
+    # # everythings ok --> login
+    # wget --keep-session-cookies --save-cookies=cookies.txt --referer=http://wallbase.cc/home http://wallbase.cc/user/login
+    # csrf= "$(cat login | grep 'name="csrf"' | sed  's .\{44\}  ' | sed 's/.\{2\}$//')"
+    # ref= "$(cat login | grep 'name="ref"' | sed  's .\{43\}  ' | sed 's/.\{2\}$//')"
+    # echo "TODO"
+    # wget --keep-session-cookies --save-cookies=cookies.txt --referer=http://wallbase.cc/home --post-file=logindata http://wallbase.cc/user/do_login
 } # /login
 
 # 
@@ -418,7 +443,7 @@ function getPage {
 	fi
 
 	# parameters ok --> get page
-	wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc http://wallbase.cc/$1
+	wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc -O tmp "http://wallbase.cc/$1"
 } # /getPage
 
 #
@@ -426,19 +451,7 @@ function getPage {
 # arg1:	the file containing the wallpapers
 #
 function downloadWallpapers {
- 	# checking parameters -> if not ok print error and exit script
-	if [ $# -lt 1 ]; then
-		echo "downloadWallpapers expects at least 1 argument"
-		echo "arg1:	 parameters for the wget command"
-		echo ""
-		echo "press any key to exit"
-		read
-		exit
-	fi
-
-	# parameters ok --> get page
-	pagename=$1
-	URLSFORIMAGES="$(cat $pagename | grep -o "http:.*" | cut -d " " -f 1 | grep wallpaper)"
+	URLSFORIMAGES="$(cat tmp | grep -o "http://wallbase.cc/wallpaper/.*" | cut -d " " -f 1)"
 	for imgURL in $URLSFORIMAGES
 		do
 		img="$(echo $imgURL | sed 's/.\{1\}$//')"
@@ -449,37 +462,37 @@ function downloadWallpapers {
 			else
 				echo $number >> downloaded.txt
 				wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc $img
-				cat $number | grep -o "'+B.*+" | sed 's/.\{3\}$//' | sed 's .\{5\}  ' | base64 -d | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
-				if [ $Related == 1 ]
-					then
-						wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc -O related.html http://wallbase.cc/related/$number
-						URLSFORIMAGES_related="$(cat related.html | grep -o "http:.*" | cut -d " " -f 1 | grep wallpaper)"
+				cat $number | egrep -o "http://wallpapers.*(png|jpg|gif)" | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
+				# if [ $Related == 1 ]
+				# 	then
+				# 		wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc -O related.html http://wallbase.cc/related/$number
+				# 		URLSFORIMAGES_related="$(cat related.html | grep -o "http:.*" | cut -d " " -f 1 | grep wallpaper)"
+				# 		rm $number
+				# 		for imgURL in $URLSFORIMAGES_related
+				# 			do
+				# 			img="$(echo $imgURL | sed 's/.\{1\}$//')"
+				# 			number="$(echo $img | sed  's .\{29\}  ')"
+				# 			if cat downloaded.txt | grep "$number" >/dev/null
+				# 				then
+				# 					echo "File already downloaded!"
+				# 				else
+				# 					echo $number >> downloaded.txt
+				# 					wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc $img
+				# 					cat $number | grep -o "'+B.*+" | sed 's/.\{3\}$//' | sed 's .\{5\}  ' | base64 -d | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
+				# 					rm $number
+				# 			fi
+				# 			done
+				#	else
 						rm $number
-						for imgURL in $URLSFORIMAGES_related
-							do
-							img="$(echo $imgURL | sed 's/.\{1\}$//')"
-							number="$(echo $img | sed  's .\{29\}  ')"
-							if cat downloaded.txt | grep "$number" >/dev/null
-								then
-									echo "File already downloaded!"
-								else
-									echo $number >> downloaded.txt
-									wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc $img
-									cat $number | grep -o "'+B.*+" | sed 's/.\{3\}$//' | sed 's .\{5\}  ' | base64 -d | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
-									rm $number
-							fi
-							done
-					else
-						rm $number
-				fi	
+				# fi	
 		fi
 		done
-        rm $pagename
+        rm tmp
 } #/downloadWallpapers
  
  
 # login only when it is required ( for example to download favourites or nsfw content... )
-if [ $CATEGORY == 001 ] || [ $CATEGORY == 011 ] || [ $CATEGORY == 111 ] || [ $TYPE == 3 ] || [ $TYPE == 5 ] || [ $TYPE == 6 ] ; then
+if [ $PURITY == 001 ] || [ $PURITY == 011 ] || [ $PURITY == 111 ] || [ $TYPE == 5 ] || [ $TYPE == 7 ] ; then
    login $USER $PASS
 fi
 
@@ -493,30 +506,30 @@ if [ $WP_RANGE_STOP -gt 0 ]; then
 		 	else
 				echo $count >> downloaded.txt
 		 		wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc http://wallbase.cc/wallpaper/$count
-		 		cat $count | grep -o "'+B.*+" | sed 's/.\{3\}$//' | sed 's .\{5\}  ' | base64 -d | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
-				if [ $Related == 1 ]
-					then
-						wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc -O related.html http://wallbase.cc/related/$count
-						URLSFORIMAGES_related="$(cat related.html | grep -o "http:.*" | cut -d " " -f 1 | grep wallpaper)"
-						rm $count
-						for imgURL in $URLSFORIMAGES_related
-							do
-							img="$(echo $imgURL | sed 's/.\{1\}$//')"
-							number="$(echo $img | sed  's .\{29\}  ')"
-							if cat downloaded.txt | grep "$number" >/dev/null
-								then
-									echo "File already downloaded!"
-								else
-									echo $number >> downloaded.txt
-									wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc $img
-									cat $number | grep -o "'+B.*+" | sed 's/.\{3\}$//' | sed 's .\{5\}  ' | base64 -d | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
-									rm $number
-							fi
-							done
-						rm related.html
-					else
+		 		cat $count | egrep -o "http://wallpapers.*(png|jpg|gif)" | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
+				# if [ $Related == 1 ]
+				# 	then
+				# 		wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc -O related.html http://wallbase.cc/related/$count
+				# 		URLSFORIMAGES_related="$(cat related.html | grep -o "http:.*" | cut -d " " -f 1 | grep wallpaper)"
+				# 		rm $count
+				# 		for imgURL in $URLSFORIMAGES_related
+				# 			do
+				# 			img="$(echo $imgURL | sed 's/.\{1\}$//')"
+				# 			number="$(echo $img | sed  's .\{29\}  ')"
+				# 			if cat downloaded.txt | grep "$number" >/dev/null
+				# 				then
+				# 					echo "File already downloaded!"
+				# 				else
+				# 					echo $number >> downloaded.txt
+				# 					wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc $img
+				# 					cat $number | grep -o "'+B.*+" | sed 's/.\{3\}$//' | sed 's .\{5\}  ' | base64 -d | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
+				# 					rm $number
+				# 			fi
+				# 			done
+				# 		rm related.html
+				# 	else
 					rm $count
-				fi	
+				# fi	
 		fi
 		done
 
@@ -524,72 +537,58 @@ elif [ $TYPE == 1 ] ; then
     # RANDOM
     for (( count= 0; count< "$MAX_RANGE"; count=count+"$THPP" )); 
     do
-		getPage random/$TOPIC/$SIZE/$RESOLUTION/$ASPECTRATIO/$CATEGORY/$THPP
-		downloadWallpapers $THPP
+		getPage "random/index/$count?section=wallpapers&res_opt=$SIZE&res=$RESOLUTION&thpp=$THPP&purity=$PURITY&board=$TOPIC&aspect=$ASPECTRATIO"
+		downloadWallpapers
     done
  
 elif [ $TYPE == 2 ] ; then
     # TOPLIST
     for (( count= 0; count< "$MAX_RANGE"; count=count+"$THPP" ));
     do
-        getPage toplist/$count/$TOPIC/$SIZE/$RESOLUTION/$ASPECTRATIO/$CATEGORY/$THPP/$TIME
-        downloadWallpapers $TIME
+        getPage "toplist/index/$count?section=wallpapers&res_opt=$SIZE&res=$RESOLUTION&thpp=$THPP&purity=$PURITY&board=$TOPIC&aspect=$ASPECTRATIO&ts=$TIME"
+        downloadWallpapers
     done
 
 elif [ $TYPE == 3 ] ; then
     # NEWEST
     for (( count= 0; count< "$MAX_RANGE"; count=count+"$THPP" ));
     do
-        getPage search/$count/$TOPIC/$SIZE/$RESOLUTION/$ASPECTRATIO/$CATEGORY/$THPP
-        downloadWallpapers $THPP
+        getPage "search/index/$count?section=wallpapers&res_opt=$SIZE&res=$RESOLUTION&order_mode=$ORDER_TYPE&order=date&thpp=$THPP&purity=$PURITY&board=$TOPIC&aspect=$ASPECTRATIO"
+        downloadWallpapers
     done
  
 elif [ $TYPE == 4 ] ; then
     # SEARCH
-    echo "query=$QUERY&board=$TOPIC&nsfw=$CATEGORY&res=$RESOLUTION&res_opt=$SIZE&aspect=$ASPECTRATIO&orderby=$ORDER&orderby_opt=$ORDER_TYPE&thpp=$THPP&section=wallpapers&1=1" > data
-    wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc --post-file=data http://wallbase.cc/search/
-    downloadWallpapers "index.html"
-	rm data
-	
-    (( nsfw_sfw=(10#$CATEGORY / 100) ))
-    (( nsfw_sketchy=(10#$CATEGORY % 100 / 10) ))
-    (( nsfw_nsfw=(10#$CATEGORY % 10) ))
-
-	echo "query=$QUERY&board=$TOPIC&res_opt=$SIZE&res=$RESOLUTION&aspect=$ASPECTRATIO&nsfw_sfw=$nsfw_sfw&nsfw_sketchy=$nsfw_sketchy&nsfw_nsfw=$nsfw_nsfw&thpp=$THPP&orderby=$ORDER&orderby_opt=$ORDER_TYPE&section=wallpapers&1=1" > data
-	
-    for (( count= $THPP; count< "$MAX_RANGE"; count=count+"$THPP" ));
+    for (( count= 0; count< "$MAX_RANGE"; count=count+"$THPP" ));
     do
-		wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc/search --post-file=data http://wallbase.cc/search/$count
-		downloadWallpapers $count
-	done
-	rm data
+        getPage "search/index/$count?section=wallpapers&q=$QUERY&res_opt=$SIZE&res=$RESOLUTION&order_mode=$ORDER_TYPE&order=$ORDER&thpp=$THPP&purity=$PURITY&board=$TOPIC&aspect=$ASPECTRATIO"
+        downloadWallpapers
+    done
 	
 elif [ $TYPE == 5 ] ; then
     # FAVOURITES
     for (( count= 0; count< "$MAX_RANGE"; count=count+"32" ));
 	do
-		getPage user/favorites/$COLLECTION/$count
-		downloadWallpapers $count
+		getPage favorites/$COLLECTION/$count
+		downloadWallpapers
 	done
  
 elif [ $TYPE == 6 ] ; then
     # USER CREATED COLLECTIONS
     for (( count= 0; count< "$MAX_RANGE"; count=count+"32" ));
     do
-        getPage user/collection/$COLLECTION/1/$count
-        downloadWallpapers $count
+        getPage collection/$COLLECTION/$count
+        downloadWallpapers
     done
 
 elif [ $TYPE == 7 ] ; then
     # UPLOADS FROM SPECIFIC USER
     for (( count= 0; count< "$MAX_RANGE"; count=count+"32" ));
     do
-        getPage user/profile/$COLLECTION/uploads/date/0/$count
-        downloadWallpapers $count
+        getPage user/$COLLECTION/uploads/$count
+        downloadWallpapers
     done
 
 else
 	echo error in TYPE please check Variable
 fi
- 
-rm "1" "cookies.txt" "login" "login.1"

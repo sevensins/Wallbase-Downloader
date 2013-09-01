@@ -10,6 +10,18 @@
 	<strong>Changelog :</strong>
 	<ul>
 		<li>
+			<strong>Revision 2.7</strong><br />
+			Contributed by MacEarl
+			<ol>
+				<li>Fixed most issues (wallbase v4 update). No need for Base64 anymore</li>
+				<li>Login Feature does not work, that means no nsfw wallpapers, <br />
+					Favourites or Uploads from a User (Collections with some nsfw Images <br />
+					will be downloaded without the nsfw images)</li>
+				<li>Download related Wallpapers Function does not work <br />
+					(it seems the related Wallpaper function was removed, if you find it please let me know)</li>
+			</ol>
+		</li>
+		<li>
 			<strong>Revision 2.6.2</strong><br />
 			Contributed by MacEarl
 			<ol>
