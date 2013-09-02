@@ -10,6 +10,13 @@
 	<strong>Changelog :</strong>
 	<ul>
 		<li>
+			<strong>Revision 2.7.1</strong><br />
+			Contributed by MacEarl
+			<ol>
+				<li>Fixed Login, everything should work again (except the related wallpaper feature)</li>
+			</ol>
+		</li>
+		<li>
 			<strong>Revision 2.7</strong><br />
 			Contributed by MacEarl
 			<ol>

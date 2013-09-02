@@ -8,6 +8,11 @@
 # This Script is written for GNU Linux, it should work under Mac OS
 #
 #
+# Revision 2.7.1
+# Contributed by MacEarl
+# 1. Fixed Login, everything should work again (except the related wallpaper feature)
+#
+#
 # Revision 2.7
 # Contributed by MacEarl
 # 1. Fixed most issues (wallbase v4 update)
@@ -270,7 +275,7 @@
 #
 # To download Wallpapers uploaded by a specific user open the profile
 # in your Browser and copy the following part
-# http://wallbase.cc/user/"#UserID"/uploads
+# http://wallbase.cc/user/id-"#UserID"/uploads
 # You only need the number between user and uploads
 #
 ################################
@@ -401,31 +406,22 @@ cd $LOCATION
 # arg2: password
 #
 function login {
-	echo "The login Feature does not work at the moment,"
-	echo ""
-	echo "please change your configuration to ignore nsfw images, your favourites or uploads from user x"
-	echo ""
-	echo "Press any key to exit"
-	read
-	exit
-
-	# # checking parameters -> if not ok print error and exit script
-	# if [ $# -lt 2 ] || [ $1 == '' ] || [ $2 == '' ]; then
- #        echo "Please check the needed Options for NSFW/New Content (username and password)"
- #        echo ""
- #        echo "For further Information see Section 13"
- #        echo ""
- #        echo "Press any key to exit"
- #        read
- #        exit
-    # fi
+	# checking parameters -> if not ok print error and exit script
+	if [ $# -lt 2 ] || [ $1 == '' ] || [ $2 == '' ]; then
+        echo "Please check the needed Options for NSFW/New Content (username and password)"
+        echo ""
+        echo "For further Information see Section 13"
+        echo ""
+        echo "Press any key to exit"
+        read
+        exit
+    fi
     
-    # # everythings ok --> login
-    # wget --keep-session-cookies --save-cookies=cookies.txt --referer=http://wallbase.cc/home http://wallbase.cc/user/login
-    # csrf= "$(cat login | grep 'name="csrf"' | sed  's .\{44\}  ' | sed 's/.\{2\}$//')"
-    # ref= "$(cat login | grep 'name="ref"' | sed  's .\{43\}  ' | sed 's/.\{2\}$//')"
-    # echo "TODO"
-    # wget --keep-session-cookies --save-cookies=cookies.txt --referer=http://wallbase.cc/home --post-file=logindata http://wallbase.cc/user/do_login
+    # everythings ok --> login
+    wget --keep-session-cookies --save-cookies=cookies.txt --referer=http://wallbase.cc/home http://wallbase.cc/user/login
+    csrf="$(cat login | grep 'name="csrf"' | sed  's .\{44\}  ' | sed 's/.\{2\}$//')"
+    ref="$(rawurlencode $(cat login | grep 'name="ref"' | sed  's .\{43\}  ' | sed 's/.\{2\}$//'))" 
+    wget --load-cookies=cookies.txt --keep-session-cookies --save-cookies=cookies.txt --referer=http://wallbase.cc/user/login --post-data="csrf=$csrf&ref=$ref&username=$USER&password=$PASS" http://wallbase.cc/user/do_login
 } # /login
 
 # 
@@ -489,7 +485,28 @@ function downloadWallpapers {
 		done
         rm tmp
 } #/downloadWallpapers
- 
+
+#
+# urlencodes the ref value from the login page
+# arg1:	the ref value from the login page
+#
+# source: http://stackoverflow.com/a/10660730
+#
+function rawurlencode() {
+	local string="${1}"
+  	local strlen=${#string}
+  	local encoded=""
+
+  	for (( pos=0 ; pos<strlen ; pos++ )); do
+    	c=${string:$pos:1}
+     	case "$c" in
+        	[-_.~a-zA-Z0-9] ) o="${c}" ;;
+        	* )               printf -v o '%%%02x' "'$c"
+     	esac
+     		encoded+="${o}"
+  	done
+  	echo "${encoded}"
+} 
  
 # login only when it is required ( for example to download favourites or nsfw content... )
 if [ $PURITY == 001 ] || [ $PURITY == 011 ] || [ $PURITY == 111 ] || [ $TYPE == 5 ] || [ $TYPE == 7 ] ; then
@@ -585,10 +602,12 @@ elif [ $TYPE == 7 ] ; then
     # UPLOADS FROM SPECIFIC USER
     for (( count= 0; count< "$MAX_RANGE"; count=count+"32" ));
     do
-        getPage user/$COLLECTION/uploads/$count
+        getPage user/id-$COLLECTION/uploads/$count
         downloadWallpapers
     done
 
 else
 	echo error in TYPE please check Variable
 fi
+
+rm -f cookies.txt login do_login
