@@ -10,6 +10,13 @@
 	<strong>Changelog :</strong>
 	<ul>
 		<li>
+			<strong>Revision 2.8</strong><br />
+			Contributed by MacEarl
+			<ol>
+				<li>Added Option to rename files accordingly to their tags. (experimental)</li>
+			</ol>
+		</li>
+		<li>
 			<strong>Revision 2.7.1</strong><br />
 			Contributed by MacEarl
 			<ol>

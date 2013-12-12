@@ -8,6 +8,11 @@
 # This Script is written for GNU Linux, it should work under Mac OS
 #
 #
+# Revision 2.8
+# Contributed by MacEarl
+# 1. Added Option to rename files accordingly to their tags. (experimental)
+#
+#
 # Revision 2.7.1
 # Contributed by MacEarl
 # 1. Fixed Login, everything should work again (except the related wallpaper feature)
@@ -311,7 +316,6 @@
 #  This Setting will download all Wallpapers from
 #  10.000 to 10.200
 # 
-
 # NOT WORKING! 
 ################################
 ### Section 17 :: Related    ###
@@ -323,6 +327,17 @@
 # Related = 1 --> Activated
 #
 #
+################################
+### Section 18 :: Keywords   ###
+################################
+#
+# This Option changes the filename to the wallpapers
+# Tags
+#
+# Warning: The filenames can get very long, also it could contain special
+# Characters. Also some Wallpapers have no Tags, this will result in empty Filenames.
+# Use with Caution
+# 
 
 ##################################
 ###    Needed for NSFW/New     ###
@@ -376,6 +391,8 @@ CATEGORIZE=0
 # See Section 16
 WP_RANGE_START=0
 WP_RANGE_STOP=0
+# See Section 18 | NOT RECOMMENDED!
+KEYWORD_FILENAME=0
 
 # not working
 # # See Section 17
@@ -458,7 +475,12 @@ function downloadWallpapers {
 			else
 				echo $number >> downloaded.txt
 				wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc $img
+				filename="$(cat $number | grep 'meta name="keywords"' | sed  's .\{35\}  ' | sed 's/.\{4\}$//' | tr -d ',' | sed -r 's/ background| desktop| best| widescreen| wallpaper|background |desktop |best |widescreen |wallpaper //g')"
 				cat $number | egrep -o "http://wallpapers.*(png|jpg|gif)" | wget --keep-session-cookies --load-cookies=cookies.txt --referer=http://wallbase.cc/wallpaper/$number -i -
+				if [ "$KEYWORD_FILENAME" == 1 ]
+					then
+						rename wallpaper-$number "$filename" wallpaper-$number????
+				fi
 				# if [ $Related == 1 ]
 				# 	then
 				# 		wget --keep-session-cookies --load-cookies=cookies.txt --referer=wallbase.cc -O related.html http://wallbase.cc/related/$number
