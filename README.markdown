@@ -9,6 +9,15 @@
 <p>
 	<strong>Changelog :</strong>
 	<ul>
+                <li>
+                        <strong>Revision 2.8.1</strong><br />
+                        Contributed by MacEarl
+                        <ol>
+                                <li>addded "-w" flag to grep for check if wallpaper was already downloaded.<\br>
+                                    Before it was not looking for an exact match, so wallpaper-123 would be <\br>
+                                    recognized as downloaded if you already downloaded wallpaper-1234</li>
+                        </ol>
+                </li>
 		<li>
 			<strong>Revision 2.8</strong><br />
 			Contributed by MacEarl
