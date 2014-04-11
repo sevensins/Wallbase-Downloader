@@ -8,6 +8,12 @@
 # This Script is written for GNU Linux, it should work under Mac OS
 #
 #
+# Revision 2.8.1
+# 1. addded "-w" flag to grep for check if wallpaper was already downloaded.
+#    Before it was not looking for an exact match, so wallpaper-123 would be 
+#    recognized as downloaded if you already downloaded wallpaper-1234
+#
+#
 # Revision 2.8
 # Contributed by MacEarl
 # 1. Added Option to rename files accordingly to their tags. (experimental)
@@ -469,7 +475,7 @@ function downloadWallpapers {
 		do
 		img="$(echo $imgURL | sed 's/.\{1\}$//')"
 		number="$(echo $img | sed  's .\{29\}  ')"
-		if cat downloaded.txt | grep "$number" >/dev/null
+		if cat downloaded.txt | grep -w "$number" >/dev/null
 			then
 				echo "File already downloaded!"
 			else
