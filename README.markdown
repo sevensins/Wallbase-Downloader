@@ -1,7 +1,6 @@
 <p>
 	I just added two Version for <a href="http://alpha.wallhaven.cc" target="_blank">wallhaven.cc</a>, one using gnuparallel and one that doesnt, see normal.vs.parallel.txt for comparison.<br />
-	This is just a first Version, wallhaven is currently in alpha phase, so there are not that much wallpapers (just under 3000) and <br />
-	the site will start from scratch after the alpha phase.
+	This is just a first Version, wallhaven is currently in alpha phase, so there are not that much wallpapers (just under 3000) and the site will start from scratch after the alpha phase.
 </p>
 <p>
 	<a href="http://wallbase.cc" target="_blank">wallbase.cc</a> is an excellent site to download wallpapers with an option to search through the wallpapers database which are tagged.<br />
