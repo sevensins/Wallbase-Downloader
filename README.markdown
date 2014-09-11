@@ -1,7 +1,9 @@
+<p>
 <h1>It seems that wallbase.cc was shutdown, as of now no one knows why (apparently the domain was paid for till 2015)
 I will leave this Script online in case anyone needs it for a similar project. Also i just moved the Wallhaven.cc Stuff to another Repository and i will continue to work on that script (more actively once wallhaven actually hits beta status)
 New Repo can be found here: <a href="https://github.com/macearl/Wallhaven-Downloader">Wallhaven Downloader</a>
 </h1>
+</p>
 <p>
 	<a href="http://wallbase.cc" target="_blank">wallbase.cc</a> is an excellent site to download wallpapers with an option to search through the wallpapers database which are tagged.<br />
 	But with literally a huge database it takes ages to download the wallpapers to browse and download.<br />
